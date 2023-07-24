@@ -6,17 +6,16 @@
 # Modified from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 # ------------------------------------------------------------------------------------------------
 
-import os
 import glob
+import os
 
 import torch
-
-from torch.utils.cpp_extension import CUDA_HOME
+from setuptools import find_packages, setup
+# from torch.utils.cpp_extension import CUDA_HOME
 from torch.utils.cpp_extension import CppExtension
-from torch.utils.cpp_extension import CUDAExtension
 
-from setuptools import find_packages
-from setuptools import setup
+# from torch.utils.cpp_extension import CUDAExtension
+
 
 requirements = ["torch", "torchvision"]
 
@@ -26,7 +25,7 @@ def get_extensions():
 
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
-    source_cuda = glob.glob(os.path.join(extensions_dir, "cuda", "*.cu"))
+    # source_cuda = glob.glob(os.path.join(extensions_dir, "cuda", "*.cu"))
 
     sources = main_file + source_cpu
     extension = CppExtension
@@ -35,18 +34,18 @@ def get_extensions():
 
 
 
-    if torch.cuda.is_available() and CUDA_HOME is not None:
-        extension = CUDAExtension
-        sources += source_cuda
-        define_macros += [("WITH_CUDA", None)]
-        extra_compile_args["nvcc"] = [
-            "-DCUDA_HAS_FP16=1",
-            "-D__CUDA_NO_HALF_OPERATORS__",
-            "-D__CUDA_NO_HALF_CONVERSIONS__",
-            "-D__CUDA_NO_HALF2_OPERATORS__",
-        ]
-    else:
-        raise NotImplementedError('Cuda is not availabel')
+    # if torch.cuda.is_available() and CUDA_HOME is not None:
+    #     extension = CUDAExtension
+    #     sources += source_cuda
+    #     define_macros += [("WITH_CUDA", None)]
+    #     extra_compile_args["nvcc"] = [
+    #         "-DCUDA_HAS_FP16=1",
+    #         "-D__CUDA_NO_HALF_OPERATORS__",
+    #         "-D__CUDA_NO_HALF_CONVERSIONS__",
+    #         "-D__CUDA_NO_HALF2_OPERATORS__",
+    #     ]
+    # else:
+    #     raise NotImplementedError('Cuda is not availabel')
 
     sources = [os.path.join(extensions_dir, s) for s in sources]
     include_dirs = [extensions_dir]

@@ -6,19 +6,17 @@
 # Modified from https://github.com/chengdazhi/Deformable-Convolution-V2-PyTorch/tree/pytorch_1.0.0
 # ------------------------------------------------------------------------------------------------
 
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import division
+from __future__ import absolute_import, division, print_function
 
-import warnings
 import math
+import warnings
 
 import torch
-from torch import nn
 import torch.nn.functional as F
-from torch.nn.init import xavier_uniform_, constant_
+from torch import nn
+from torch.nn.init import constant_, xavier_uniform_
 
-from ..functions import MSDeformAttnFunction
+from ..functions import ms_deform_attn_core_pytorch
 
 
 def _is_power_of_2(n):
@@ -113,14 +111,14 @@ class MSDeformAttn(nn.Module):
         # for amp
         if value.dtype == torch.float16:
             # for mixed precision
-            output = MSDeformAttnFunction.apply(
-            value.to(torch.float32), input_spatial_shapes, input_level_start_index, sampling_locations.to(torch.float32), attention_weights, self.im2col_step)
+            output = ms_deform_attn_core_pytorch(
+            value.to(torch.float32), input_spatial_shapes, sampling_locations.to(torch.float32), attention_weights)
             output = output.to(torch.float16)
             output = self.output_proj(output)
             return output
 
 
-        output = MSDeformAttnFunction.apply(
-            value, input_spatial_shapes, input_level_start_index, sampling_locations, attention_weights, self.im2col_step)
+        output = ms_deform_attn_core_pytorch(
+            value, input_spatial_shapes, sampling_locations, attention_weights)
         output = self.output_proj(output)
         return output
